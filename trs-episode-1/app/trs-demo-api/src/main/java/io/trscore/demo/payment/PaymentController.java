@@ -39,6 +39,18 @@ public class PaymentController {
         return paymentService.create(request);
     }
 
+    @PostMapping("/{id}/process")
+    public Payment processPayment(@PathVariable UUID id) {
+        return paymentService.process(id);
+    }
+
+    @ExceptionHandler(PaymentService.PaymentStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public String handleConflict(
+            PaymentService.PaymentStateException exception) {
+        return exception.getMessage();
+    }
+
     @ExceptionHandler(PaymentService.PaymentNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNotFound(

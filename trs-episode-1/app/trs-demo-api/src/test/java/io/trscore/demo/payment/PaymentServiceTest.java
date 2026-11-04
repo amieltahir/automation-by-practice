@@ -65,5 +65,67 @@ class PaymentServiceTest {
     void returnsNullForUnknownPayment() {
         assertEquals(null, service.findById(UUID.randomUUID()));
     }
-}
 
+    @Test
+    void failedProcessingIsRetainedAsFailed() {
+        PaymentService failing = new PaymentService(payment -> false);
+
+        Payment created = failing.create(
+                new PaymentRequest(new BigDecimal("10.00"), "CAD", "Declined"));
+
+        assertEquals(PaymentStatus.FAILED, created.status());
+        assertEquals(PaymentStatus.FAILED,
+                failing.findById(created.id()).status());
+    }
+
+    @Test
+    void processorExceptionMarksPaymentFailed() {
+        PaymentService throwing = new PaymentService(payment -> {
+            throw new IllegalStateException("gateway down");
+        });
+
+        Payment created = throwing.create(
+                new PaymentRequest(new BigDecimal("10.00"), "CAD", "Error"));
+
+        assertEquals(PaymentStatus.FAILED, created.status());
+    }
+
+    @Test
+    void processorSeesProcessingStatus() {
+        PaymentService[] holder = new PaymentService[1];
+        PaymentStatus[] seen = new PaymentStatus[1];
+        holder[0] = new PaymentService(payment -> {
+            seen[0] = payment.status();
+            return true;
+        });
+
+        holder[0].create(
+                new PaymentRequest(new BigDecimal("1.00"), "CAD", "Observe"));
+
+        assertEquals(PaymentStatus.PROCESSING, seen[0]);
+    }
+
+    @Test
+    void cannotProcessTwice() {
+        Payment completed = service.findAll().get(0);
+
+        assertThrows(
+                PaymentService.PaymentStateException.class,
+                () -> service.process(completed.id()));
+        assertEquals(PaymentStatus.COMPLETED,
+                service.findById(completed.id()).status());
+    }
+
+    @Test
+    void processingUnknownPaymentFails() {
+        assertThrows(
+                PaymentService.PaymentNotFoundException.class,
+                () -> service.process(UUID.randomUUID()));
+    }
+
+    @Test
+    void findAllReturnsLatestStatuses() {
+        service.findAll().forEach(p ->
+                assertEquals(PaymentStatus.COMPLETED, p.status()));
+    }
+}
