@@ -1,4 +1,4 @@
-# TRS Episode 01: Deploying a Spring Boot Payment API with Podman and Ansible
+# TRS Episode 01: Deploying a Java Spring Boot Payment API with Podman and Ansible
 
 This episode demonstrates a repeatable way to build and deploy a Java Spring Boot REST API using Ansible and rootless Podman. The sample API provides payment endpoints backed by in-memory data and a simulated payment gateway, making it useful for practicing deployment automation without connecting to a real payment processor.
 
