@@ -1,6 +1,6 @@
 # Build and Deployment Diagram — TRS Episode 01
 
-The flow is grouped into three compact stages for easier screen-share viewing.
+
 
 ```mermaid
 flowchart TB
