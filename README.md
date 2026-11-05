@@ -1,3 +1,5 @@
+![Automation by Practice banner](assets/automation-by-practice.png)
+
 Automation by Practice is where infrastructure automation meets real-world engineering.
 
 Explore hands-on demonstrations covering Ansible, DevOps, SRE, containers, CI/CD, DevSecOps, and platform engineering.
